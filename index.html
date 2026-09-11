@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101310">
+  <meta name="description" content="Kilka zagadek. Ukryte wskazówki. Jedna niespodzianka.">
+  <title>Riddler — Twoja niespodzianka</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101310; --card:#191e18; --text:#f3f5ed; --muted:#aeb8a7; --accent:#d0f58a; --line:#35412f; }
+    * { box-sizing:border-box; }
+    [hidden] { display:none !important; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16px; line-height:1.6; }
+    main { width:min(100%,520px); margin:0 auto; padding:28px 22px 40px; min-height:100svh; display:flex; flex-direction:column; }
+    header { display:flex; justify-content:space-between; align-items:center; gap:16px; padding-bottom:26px; border-bottom:1px solid var(--line); }
+    .brand { font-weight:800; font-size:20px; letter-spacing:-1px; }
+    .brand span { color:var(--accent); }
+    .tag,.eyebrow { color:var(--muted); font-family:ui-monospace,monospace; font-size:13px; letter-spacing:1.3px; text-transform:uppercase; }
+    .tag { border:1px solid var(--line); border-radius:30px; padding:5px 12px; letter-spacing:.6px; }
+    section { padding:35px 0 12px; animation:appear .3s ease-out; }
+    .eyebrow { margin:0 0 18px; color:var(--accent); }
+    h1 { font-size:clamp(38px,10vw,58px); line-height:1.08; letter-spacing:-2px; margin:0 0 24px; font-weight:750; overflow-wrap:break-word; }
+    h1 em { font-style:normal; color:var(--accent); }
+    h2 { margin:0 0 16px; font-size:28px; line-height:1.2; letter-spacing:-.7px; }
+    p { margin:0 0 20px; }
+    .intro { color:var(--muted); font-size:18px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:24px; margin:24px 0; }
+    .card p:last-child { margin-bottom:0; }
+    .rule { display:flex; gap:16px; align-items:baseline; margin-bottom:14px; }
+    .rule:last-child { margin-bottom:0; }
+    .number { color:var(--accent); font-family:ui-monospace,monospace; font-size:14px; }
+    button,input { font:inherit; }
+    button { cursor:pointer; touch-action:manipulation; }
+    .primary { display:block; width:100%; min-height:56px; border:0; border-radius:14px; padding:14px 20px; font-weight:750; color:#17220d; background:var(--accent); }
+    .primary:hover { background:#dcffa1; }
+    :focus-visible { outline:3px solid var(--accent); outline-offset:4px; }
+    .progress { display:flex; gap:8px; margin:0 0 30px; }
+    .progress span { flex:1; height:4px; background:var(--line); border-radius:2px; }
+    .progress span.done { background:var(--accent); }
+    .riddle { white-space:pre-line; font-size:19px; line-height:1.8; }
+    label { display:block; margin-bottom:10px; font-size:15px; font-weight:600; }
+    input { display:block; width:100%; min-width:0; min-height:62px; border:1px solid #677660; border-radius:14px; background:var(--bg); color:var(--text); padding:12px 18px; text-align:center; font-family:ui-monospace,monospace; font-size:25px; letter-spacing:8px; }
+    input::placeholder { color:#819077; opacity:1; }
+    input[aria-invalid="true"] { border-color:#ffaaa2; }
+    .help { color:var(--muted); font-size:14px; margin:10px 0 0; }
+    .error { color:#ffb5ae; font-size:14px; min-height:24px; margin:8px 0 14px; }
+    .message { color:var(--accent); font-size:15px; }
+    .secondary { border:0; background:transparent; color:var(--muted); padding:12px 6px; min-height:44px; text-decoration:underline; text-underline-offset:4px; font-size:14px; }
+    footer { margin-top:auto; padding-top:30px; color:var(--muted); font-size:13px; }
+    footer p { margin:0; }
+    @keyframes appear { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    @media (prefers-reduced-motion:reduce) { section { animation:none; } }
+    @media (max-width:360px) { main { padding:20px 16px 30px; } .card { padding:20px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header><div class="brand">riddler<span>.</span></div><span class="tag">Misja: prezent</span></header>
+    <section id="welcome">
+      <p class="eyebrow">Coś na Ciebie czeka</p>
+      <h1>To nie jest<br>zwykły <em>prezent.</em></h1>
+      <p class="intro">Najpierw mała przygoda. Kilka wskazówek, trochę szukania i niespodzianka na końcu.</p>
+      <div class="card">
+        <div class="rule"><span class="number">01</span><span>Przeczytaj zagadkę.</span></div>
+        <div class="rule"><span class="number">02</span><span>Znajdź ukryty w domu kod.</span></div>
+        <div class="rule"><span class="number">03</span><span>Wpisz go i odkryj kolejny trop.</span></div>
+      </div>
+      <button class="primary" id="start" type="button">Zaczynam przygodę</button>
+      <p class="help">Bez pośpiechu. Rozejrzyj się uważnie.</p>
+    </section>
+    <section id="game" hidden>
+      <p class="eyebrow" id="stage-label"></p>
+      <div class="progress" id="progress" aria-hidden="true"></div>
+      <h1 id="stage-title" tabindex="-1"></h1>
+      <p class="message" id="success" role="status"></p>
+      <div class="card"><p class="riddle" id="riddle"></p></div>
+      <form id="code-form" novalidate>
+        <label for="code">Kod znaleziony przy wskazówce</label>
+        <input id="code" name="code" type="text" inputmode="numeric" enterkeyhint="go" autocomplete="off" spellcheck="false" maxlength="12" placeholder="····" aria-describedby="code-help error">
+        <p class="help" id="code-help">Znajdź czterocyfrowy kod i wpisz go tutaj.</p>
+        <p class="error" id="error" role="alert"></p>
+        <button class="primary" type="submit">Odblokuj kolejny krok</button>
+      </form>
+    </section>
+    <section id="finale" hidden>
+      <p class="eyebrow">Wszystkie kody odnalezione</p>
+      <div class="progress" aria-hidden="true"><span class="done"></span><span class="done"></span><span class="done"></span></div>
+      <h1 id="final-title" tabindex="-1">Udało się.<br><em>To dla Ciebie.</em></h1>
+      <p class="intro">Każdy trop prowadził właśnie do tej chwili.</p>
+      <div class="card"><h2>Ostatnia wskazówka</h2><p id="final-text"></p></div>
+      <p>Mam nadzieję, że ta mała przygoda wywołała uśmiech. Teraz pora na prezent!</p>
+    </section>
+    <footer>
+      <p id="save-note">Postęp zapisuje się w tej przeglądarce.</p>
+      <button class="secondary" type="button" id="reset" hidden>Zacznij od początku</button>
+    </footer>
+    <noscript>Włącz JavaScript w przeglądarce, aby rozpocząć grę.</noscript>
+  </main>
+  <script>
+    "use strict";
+    // WERSJA PRÓBNA: tu zmieniamy zagadki, kody i miejsce prezentu.
+    // To prosta gra bez serwera: kody można odczytać w źródle strony.
+    const STAGES = [
+      { title: "Pierwszy trop.", text: "Chowam smakołyki, choć sam nic nie jem.\nNawet latem chłodem wieję.\nOtwórz moje drzwi i sprawdź,\nczy mały kod nie czeka tam.", code: "3142" },
+      { title: "Spójrz uważnie.", text: "Patrzysz na mnie — widzisz siebie.\nRobisz minę? Ja też umiem.\nRozejrzyj się przy mojej ramie,\na kolejny sekret znajdziesz.", code: "7285" },
+      { title: "Już tak blisko.", text: "Za moimi drzwiami rząd rękawów czeka.\nSweter obok koszuli — codzienna biblioteka.\nMiędzy ubraniami ukrył się mały ślad.\nZnajdź ostatni kod i ruszaj dalej w świat.", code: "9061" }
+    ];
+    const FINAL_TEXT = "Prezent czeka tam, gdzie wieczorem kładziesz głowę. Zajrzyj pod poduszkę.";
+    const STORAGE_KEY = "riddler-demo-v1";
+    const $ = id => document.getElementById(id);
+    let stage = -1;
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (Number.isInteger(saved) && saved >= -1 && saved <= STAGES.length) stage = saved;
+    } catch { $("save-note").textContent = "Zostaw tę kartę otwartą — zapis postępu jest niedostępny."; }
+
+    function save() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(stage)); }
+      catch { $("save-note").textContent = "Zostaw tę kartę otwartą — zapis postępu jest niedostępny."; }
+    }
+    function render(moveFocus = false, message = "") {
+      $("welcome").hidden = stage !== -1;
+      $("game").hidden = stage < 0 || stage >= STAGES.length;
+      $("finale").hidden = stage !== STAGES.length;
+      $("reset").hidden = stage === -1;
+      $("code").value = "";
+      $("error").textContent = "";
+      $("code").removeAttribute("aria-invalid");
+      if (stage >= 0 && stage < STAGES.length) {
+        $("stage-label").textContent = `Etap ${stage + 1} z ${STAGES.length}`;
+        $("stage-title").textContent = STAGES[stage].title;
+        $("riddle").textContent = STAGES[stage].text;
+        $("success").textContent = message;
+        $("progress").replaceChildren(...STAGES.map((_, index) => {
+          const segment = document.createElement("span");
+          if (index < stage) segment.className = "done";
+          return segment;
+        }));
+      }
+      $("final-text").textContent = FINAL_TEXT;
+      if (moveFocus) {
+        window.scrollTo({ top:0, behavior:"instant" });
+        (stage === -1 ? $("start") : stage === STAGES.length ? $("final-title") : $("stage-title")).focus();
+      }
+    }
+    $("start").addEventListener("click", () => { stage = 0; save(); render(true); });
+    $("code").addEventListener("input", () => { $("error").textContent = ""; $("code").removeAttribute("aria-invalid"); });
+    $("code-form").addEventListener("submit", event => {
+      event.preventDefault();
+      if (stage < 0 || stage >= STAGES.length) return;
+      const entered = $("code").value.trim();
+      if (entered !== STAGES[stage].code) {
+        $("error").textContent = !entered ? "Najpierw wpisz znaleziony kod." : "Ten kod nie pasuje. Sprawdź wskazówkę i spróbuj ponownie.";
+        $("code").setAttribute("aria-invalid", "true");
+        $("code").focus();
+        return;
+      }
+      stage += 1;
+      save();
+      render(true, "Kod pasuje. Kolejny trop jest Twój!");
+    });
+    $("reset").addEventListener("click", () => {
+      if (window.confirm("Zacząć od nowa? Postęp tej gry zostanie wyzerowany.")) { stage = -1; save(); render(true); }
+    });
+    render();
+  </script>
+</body>
+</html>
