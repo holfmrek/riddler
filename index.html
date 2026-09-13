@@ -76,7 +76,7 @@
         </form>
       </section>
       <section id="finale" aria-labelledby="final-title" hidden>
-        <h1 id="final-title" tabindex="-1" aria-label="Finał. Lorem ipsum.">Lorem<br><em>ipsum.</em></h1>
+        <h1 id="final-title" tabindex="-1" aria-label="Zagadka 4. Ostatni trop.">Ostatni<br><em>trop.</em></h1>
         <p class="copy" id="final-text"></p>
       </section>
     </div>
@@ -91,14 +91,16 @@
     // Tu zmieniamy treść etapów, kody oraz finał.
     // Gra bez serwera: kody są widoczne w źródle strony.
     const STAGES = [
-      { title:"Lorem ipsum.", text:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt.", code:"3142" },
-      { title:"Dolor sit amet.", text:"Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.", code:"7285" },
-      { title:"Adipiscing elit.", text:"Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.", code:"9061" }
+      { title:"Zagadka 1.", text:"Mam drzwi, lecz nie wpuszczam gości.\nMam stopnie, lecz żadnych schodów.\nWojtek zostawił mi kiedyś karton.\nNie oddałem go w całości.", code:"0420" },
+      { title:"Zagadka 2.", text:"Z różnych pokoi biegną do mnie kable.\nKażdy inną drogą, wszystkie w jedno miejsce.\nCzy wiesz, gdzie się spotykają?", code:"1337" },
+      { title:"Zagadka 3.", text:"Tam, gdzie po naszych przerwach zostaje popiół, stoję na straży rusztu.\nMam pokrywę, pod którą warto zajrzeć.\nCzy wiesz, gdzie mnie znaleźć?", code:"6767" }
     ];
-    const FINAL_TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
-    const STORAGE_KEY = "riddler-demo-v1";
+    const FINAL_TEXT = "W pomieszczeniu, gdzie zostawiasz buty, mam nad sobą szybę.\nJestem półką, choć nie należę do szafy.";
+    const TOTAL_STAGES = STAGES.length + 1;
+    const STORAGE_KEY = "riddler-zagadki-v1";
     const $ = id => document.getElementById(id);
     let stage = -1;
+
     function storageUnavailable() {
       $("save-note").hidden = false;
       $("save-note").textContent = "Zapis niedostępny. Zostaw tę kartę otwartą.";
@@ -107,6 +109,7 @@
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
       if (Number.isInteger(saved) && saved >= -1 && saved <= STAGES.length) stage = saved;
     } catch { storageUnavailable(); }
+
     function save() {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(stage)); }
       catch { storageUnavailable(); }
@@ -117,12 +120,12 @@
       $("game").hidden = !playing;
       $("finale").hidden = stage !== STAGES.length;
       $("reset").hidden = stage === -1;
-      $("counter").textContent = playing ? String(stage + 1).padStart(2, "0") + " / " + String(STAGES.length).padStart(2, "0") : stage === STAGES.length ? "Fin." : "";
+      $("counter").textContent = stage >= 0 ? String(stage + 1).padStart(2, "0") + " / " + String(TOTAL_STAGES).padStart(2, "0") : "";
       $("code").value = "";
       $("error").textContent = "";
       $("code").removeAttribute("aria-invalid");
       if (playing) {
-        $("stage-label").textContent = "Etap " + (stage + 1) + " z " + STAGES.length;
+        $("stage-label").textContent = "Etap " + (stage + 1) + " z " + TOTAL_STAGES;
         $("stage-title").textContent = STAGES[stage].title;
         $("riddle").textContent = STAGES[stage].text;
       }
