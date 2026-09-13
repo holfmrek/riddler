@@ -57,74 +57,45 @@
       <span class="brand">riddler.</span>
       <span class="counter" id="counter" aria-hidden="true"></span>
     </header>
-
     <div class="screens">
       <section id="welcome" aria-labelledby="welcome-title">
-        <h1 id="welcome-title">Rozpocznij</h1>
+        <h1 id="welcome-title">Riddler</h1>
         <p class="copy">Znajdź wskazówki. Wpisz kody.</p>
-        <button class="primary" id="start" type="button">Zacznij</button>
+        <button class="primary" id="start" type="button">Rozpocznij</button>
       </section>
-
       <section id="game" aria-labelledby="stage-title" hidden>
         <p class="sr-only" id="stage-label"></p>
         <h1 class="stage-title" id="stage-title" tabindex="-1" aria-describedby="stage-label"></h1>
         <p class="copy" id="riddle"></p>
-
         <form id="code-form" novalidate>
           <label for="code">Kod</label>
-          <input
-            id="code"
-            name="code"
-            type="text"
-            inputmode="numeric"
-            enterkeyhint="go"
-            autocomplete="off"
-            spellcheck="false"
-            maxlength="12"
-            placeholder="····"
-            aria-describedby="code-help error"
-          >
+          <input id="code" name="code" type="text" inputmode="numeric" enterkeyhint="go" autocomplete="off" spellcheck="false" maxlength="12" placeholder="····" aria-describedby="code-help error">
           <p class="sr-only" id="code-help">Wpisz czterocyfrowy kod znaleziony w domu.</p>
           <p class="error" id="error" role="alert"></p>
           <button class="primary" type="submit">Dalej</button>
         </form>
       </section>
-
       <section id="finale" aria-labelledby="final-title" hidden>
         <h1 id="final-title" tabindex="-1" aria-label="Zagadka 4. Ostatni trop.">Ostatni<br><em>trop.</em></h1>
         <p class="copy" id="final-text"></p>
       </section>
     </div>
-
     <footer>
       <p id="save-note" role="status" hidden></p>
       <button class="secondary" type="button" id="reset" hidden>Od początku</button>
     </footer>
     <noscript>Włącz JavaScript, aby rozpocząć grę.</noscript>
   </main>
-
   <script>
     "use strict";
-
+    // Tu zmieniamy treść etapów, kody oraz finał.
+    // Gra bez serwera: kody są widoczne w źródle strony.
     const STAGES = [
-      {
-        title: "Zagadka 1.",
-        text: "Mam drzwi, lecz nie wpuszczam gości.\nMam stopnie, lecz żadnych schodów.\nWojtek zostawił mi kiedyś karton.\nNie oddałem go w całości.",
-        code: "0420"
-      },
-      {
-        title: "Zagadka 2.",
-        text: "Z różnych pokoi biegną do mnie kable.\nKażdy inną drogą, wszystkie w jedno miejsce.\nCzy wiesz, gdzie się spotykają?",
-        code: "1337"
-      },
-      {
-        title: "Zagadka 3.",
-        text: "Tam, gdzie po naszych przerwach zostaje popiół, stoję na straży rusztu.\nMam pokrywę, pod którą warto zajrzeć.\nCzy wiesz, gdzie mnie znaleźć?",
-        code: "6767"
-      }
+      { title:"Zagadka 1.", text:"Mam drzwi, lecz nie wpuszczam gości.\nMam stopnie, lecz żadnych schodów.\nWojtek zostawił mi kiedyś karton.\nNie oddałem go w całości.", code:"0420" },
+      { title:"Zagadka 2.", text:"Z różnych pokoi biegną do mnie kable.\nKażdy inną drogą, wszystkie w jedno miejsce.\nCzy wiesz, gdzie się spotykają?", code:"1337" },
+      { title:"Zagadka 3.", text:"Tam, gdzie po naszych przerwach zostaje popiół, stoję na straży rusztu.\nMam pokrywę, pod którą warto zajrzeć.\nCzy wiesz, gdzie mnie znaleźć?", code:"6767" }
     ];
-
-    const FINAL_TEXT = "W pomieszczeniu, gdzie zostawiasz buty, mam nad sobą szybę.\nJestem półką, choć nie należę do szafy.";
+    const FINAL_TEXT = "W pomieszczeniu, gdzie zostawiasz buty, jestem półką, choć nie należę do szafy.\nPilnuję klucza, który dzieli Cię od końca dzisiejszej podróży.";
     const TOTAL_STAGES = STAGES.length + 1;
     const STORAGE_KEY = "riddler-zagadki-v1";
     const $ = id => document.getElementById(id);
@@ -134,107 +105,55 @@
       $("save-note").hidden = false;
       $("save-note").textContent = "Zapis niedostępny. Zostaw tę kartę otwartą.";
     }
-
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      if (
-        Number.isInteger(saved) &&
-        saved >= -1 &&
-        saved <= STAGES.length
-      ) {
-        stage = saved;
-      }
-    } catch {
-      storageUnavailable();
-    }
+      if (Number.isInteger(saved) && saved >= -1 && saved <= STAGES.length) stage = saved;
+    } catch { storageUnavailable(); }
 
     function save() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(stage));
-      } catch {
-        storageUnavailable();
-      }
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(stage)); }
+      catch { storageUnavailable(); }
     }
-
     function render(moveFocus = false) {
       const playing = stage >= 0 && stage < STAGES.length;
-
       $("welcome").hidden = stage !== -1;
       $("game").hidden = !playing;
       $("finale").hidden = stage !== STAGES.length;
       $("reset").hidden = stage === -1;
-
-      $("counter").textContent = stage >= 0
-        ? String(stage + 1).padStart(2, "0") + " / " +
-          String(TOTAL_STAGES).padStart(2, "0")
-        : "";
-
+      $("counter").textContent = stage >= 0 ? String(stage + 1).padStart(2, "0") + " / " + String(TOTAL_STAGES).padStart(2, "0") : "";
       $("code").value = "";
       $("error").textContent = "";
       $("code").removeAttribute("aria-invalid");
-
       if (playing) {
-        $("stage-label").textContent =
-          "Etap " + (stage + 1) + " z " + TOTAL_STAGES;
+        $("stage-label").textContent = "Etap " + (stage + 1) + " z " + TOTAL_STAGES;
         $("stage-title").textContent = STAGES[stage].title;
         $("riddle").textContent = STAGES[stage].text;
       }
-
       $("final-text").textContent = FINAL_TEXT;
-
       if (moveFocus) {
-        window.scrollTo({ top: 0, behavior: "instant" });
-
-        const target = stage === -1
-          ? $("start")
-          : stage === STAGES.length
-            ? $("final-title")
-            : $("stage-title");
-
-        target.focus();
+        window.scrollTo({ top:0, behavior:"instant" });
+        (stage === -1 ? $("start") : stage === STAGES.length ? $("final-title") : $("stage-title")).focus();
       }
     }
-
-    $("start").addEventListener("click", () => {
-      stage = 0;
-      save();
-      render(true);
-    });
-
-    $("code").addEventListener("input", () => {
-      $("error").textContent = "";
-      $("code").removeAttribute("aria-invalid");
-    });
-
+    $("start").addEventListener("click", () => { stage = 0; save(); render(true); });
+    $("code").addEventListener("input", () => { $("error").textContent = ""; $("code").removeAttribute("aria-invalid"); });
     $("code-form").addEventListener("submit", event => {
       event.preventDefault();
-
       if (stage < 0 || stage >= STAGES.length) return;
-
       const entered = $("code").value.trim();
-
       if (entered !== STAGES[stage].code) {
-        $("error").textContent = entered
-          ? "Nieprawidłowy kod."
-          : "Wpisz kod.";
+        $("error").textContent = entered ? "Nieprawidłowy kod." : "Wpisz kod.";
         $("code").setAttribute("aria-invalid", "true");
         $("code").focus();
         return;
       }
-
       stage += 1;
       save();
       render(true);
     });
-
     $("reset").addEventListener("click", () => {
-      if (window.confirm("Zacząć od początku?")) {
-        stage = -1;
-        save();
-        render(true);
-      }
+      if (window.confirm("Zacząć od początku?")) { stage = -1; save(); render(true); }
     });
-
     render();
   </script>
 </body>
