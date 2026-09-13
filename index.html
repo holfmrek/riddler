@@ -61,6 +61,8 @@
       <section id="welcome" aria-labelledby="welcome-title">
         <h1 id="welcome-title">Lorem<br><em>ipsum.</em></h1>
         <p class="copy">Lorem ipsum dolor sit amet,<br>consectetur adipiscing elit.</p>
+        <h1 id="welcome-title">Gotowy?</h1>
+        <p class="copy">Znajdź wskazówki. Wpisz kody.</p>
         <button class="primary" id="start" type="button">Zacznij</button>
       </section>
       <section id="game" aria-labelledby="stage-title" hidden>
@@ -100,7 +102,6 @@
     const STORAGE_KEY = "riddler-zagadki-v1";
     const $ = id => document.getElementById(id);
     let stage = -1;
-
     function storageUnavailable() {
       $("save-note").hidden = false;
       $("save-note").textContent = "Zapis niedostępny. Zostaw tę kartę otwartą.";
@@ -109,7 +110,6 @@
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
       if (Number.isInteger(saved) && saved >= -1 && saved <= STAGES.length) stage = saved;
     } catch { storageUnavailable(); }
-
     function save() {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(stage)); }
       catch { storageUnavailable(); }
